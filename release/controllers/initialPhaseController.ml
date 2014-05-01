@@ -15,6 +15,9 @@ let turn ((b,_,_,_) : state) =
 let fwd ((b,p,t,(c,r)) : state) =
 	(b,p,t,(next_turn c,r))
 
+let bwd ((b,p,t,(c,r)) : state) = 
+	(b,p,t,(prev_turn c,r))
+
 let is_valid game (p1,p2) = 
 	let (is,roads) = structs game in
 	let settlement = (List.nth is p1) in
@@ -36,9 +39,12 @@ let place_structs (((map,s,deck,dis,robber),p,t,(c,r)) as game :state) (p1,p2) =
 	((map,(is',roads'),deck,dis,robber),p,t,(c,r))
 
 
-
 let handle_move game line  = 
-	if turn (game) = 8 then None, game
-	else if is_valid game line then None, place_structs (fwd game) (line)
-	else
-		let l = valid_line game in None, place_structs (fwd game) (l)
+	let handle_place game line = 
+		if is_valid game line then None, place_structs (game) (line)
+		else let l = valid_line game in None, place_structs (game) (l)		
+	in 
+	if turn (game) < 4 then handle_place (fwd game) line
+	else if turn(game) = 4 then handle_place (game) line
+	else if turn(game) = 8 then None, game
+	else handle_place (bwd game) line 
