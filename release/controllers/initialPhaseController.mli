@@ -1,3 +1,3 @@
 open Definition
 
-val handle_move: state -> move -> state outcome
+val handle_move: state -> line -> state outcome

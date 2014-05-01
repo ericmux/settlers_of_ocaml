@@ -15,11 +15,11 @@ let init_game () = game_of_state (gen_initial_state())
 
 let handle_move ((_,_,_,(c,r)) as g: game) m = 
 	print_update c m g; 
-	match r with
-	  | InitialRequest	-> InitialPhaseController.handle_move (g) (m)
-      | RobberRequest	-> None, g
-      | DiscardRequest	-> None, g
-      | TradeRequest  	-> None, g
-      | ActionRequest 	-> None, g
+	match m with
+	  | InitialMove(p1,p2)		-> InitialPhaseController.handle_move (g) (p1,p2)
+      | RobberMove(p,c)			-> None, g
+      | DiscardMove(resources)	-> None, g
+      | TradeResponse(accept)  	-> None, g
+      | Action(action) 			-> None, g
 
 let presentation s = s
