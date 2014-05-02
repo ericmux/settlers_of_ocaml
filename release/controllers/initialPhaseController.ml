@@ -2,6 +2,7 @@ open Definition
 open Constant
 open Util
 open Print
+open ResourceManager
 
 
 let structs ((b,_,_,_) : state) = 
@@ -38,13 +39,24 @@ let place_structs (((map,s,deck,dis,robber),p,t,(c,r)) as game :state) (p1,p2) =
 	let roads' = (c,(p1,p2))::roads in
 	((map,(is',roads'),deck,dis,robber),p,t,(c,r))
 
+let place_structs_and_fetch (((map,s,deck,dis,robber),p,t,(c,r)) as game :state) (p1,p2) =
+	let (is,roads) = structs game in
+	let is' = List.mapi (fun i x -> if i = p1 then Some(c,Town) else x) is in
+	let roads' = (c,(p1,p2))::roads in
+	let p' = ResourceManager.fetch_resources c (p1,Town) p (fst map) in
+	((map,(is',roads'),deck,dis,robber),p',t,(c,r))	
+
 
 let handle_move game line  = 
-	let handle_place game line = 
-		if is_valid game line then None, place_structs (game) (line)
-		else let l = valid_line game in None, place_structs (game) (l)		
+	let handle_place game line pick_res = 
+		if not pick_res then 
+			(if is_valid game line then None, place_structs (game) (line)
+			else let l = valid_line game in None, place_structs (game) (l))
+		else
+			(if is_valid game line then None, place_structs_and_fetch (game) (line)
+			else let l = valid_line game in None, place_structs_and_fetch (game) (l))	
 	in 
-	if turn (game) < 4 then handle_place (fwd game) line
-	else if turn(game) = 4 then handle_place (game) line
+	if turn (game) < 4 then handle_place (fwd game) line false
+	else if turn(game) = 4 then handle_place (game) line true
 	else if turn(game) = 8 then None, game
-	else handle_place (bwd game) line 
+	else handle_place (bwd game) line true
