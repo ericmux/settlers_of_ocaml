@@ -46,7 +46,7 @@ let place_structs_and_generate (((map,s,deck,dis,robber),p,t,(c,r)) as game :sta
 	let (is,roads) = structs game in
 	let is' = List.mapi (fun i x -> if i = p1 then Some(c,Town) else x) is in
 	let roads' = (c,(p1,p2))::roads in
-	let p' = ResourceManager.generate_resources c (p1,Town) p (fst map) in
+	let p' = ResourceManager.generate_initial_resources c p (fst map) p1 Town in
 	((map,(is',roads'),deck,dis,robber),p',t,(c,r))
 
 

@@ -2,6 +2,7 @@ open Definition
 open Constant
 open Util
 open Print
+open ResourceManager
 
 
 let reset_turn (b,p,t,(c,r)) =
@@ -29,4 +30,4 @@ let roll_dice ((b,p,t,(c,r)) as game: state) =
 				cardsbought = t.cardsbought;
 				tradesmade = t.tradesmade;
 				pendingtrade = t.pendingtrade;
-	} in None, (b,p,t',(c,r))
+	} in None, (ResourceManager.tick_resources (b,p,t',(c,r)) )
