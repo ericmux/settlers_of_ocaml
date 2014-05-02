@@ -22,18 +22,25 @@ let fwd ((b,p,t,(c,r)) : state) =
 let bwd ((b,p,t,(c,r)) : state) = 
 	(b,p,t,(prev_turn c,r))
 
+let filter_by_indexes indexes structs = 
+	let mapped = List.mapi (fun i x -> if (List.mem i indexes && not (is_none x)) then Some(x) else None) structs
+	in List.filter (fun x -> not (is_none x)) mapped 
+
 let is_valid game (p1,p2) = 
 	let (is,roads) = structs game in
 	let settlement = (List.nth is p1) in
+	let indexes = adjacent_points p1 in
+	let adj_structs = filter_by_indexes indexes is in
+	let empty_adj = (List.length adj_structs = 0) in
 	let empty_s = is_none settlement in
 	let empty_r = not (List.exists (fun (_,(x,y)) -> ((x = p1) && (y = p2)) || ((x = p2) && (y = p1))) roads)
-	in empty_r && empty_s && (p1 <> p2) 
+	in (empty_r && empty_s && empty_adj && (p1 <> p2))
 
 let valid_line game = 
 	let rec valid_line p1 = 
 		let out_lines = List.map (fun x -> (p1,x)) (adjacent_points p1) in
 		if List.exists (is_valid  game) out_lines then List.find (is_valid game) out_lines
-		else valid_line (p1+2) 
+		else valid_line (Random.int 54) 
 	in valid_line 0 
 
 let place_structs (((map,s,deck,dis,robber),p,t,(c,r)) as game :state) (p1,p2) =
