@@ -19,7 +19,8 @@ let filter_hexes plist hex_list =
 (* To be used to update a player's resource based on all of his settlements *)
 let tick_resources color game = game
 
-let fetch_resources color (p1,s) players hex_list = 
+(* Generates resources for player [color] from the settlement placed at [p1]  *)
+let generate_resources color (p1,s) players hex_list = 
 	let add_res ((c,(inv,cards),troph) as p : player) = 
 		if color <> c then p
 		else let pieces = adjacent_pieces p1 in 

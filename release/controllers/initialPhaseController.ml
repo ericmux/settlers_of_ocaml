@@ -5,6 +5,9 @@ open Print
 open ResourceManager
 
 
+let start_main_phase ((b,p,t,(c,r)) : state) = 
+	(b,p,t,(c,ActionRequest)) 
+
 let structs ((b,_,_,_) : state) = 
 	let (_,s,_,_,_) = b in s
 
@@ -30,7 +33,7 @@ let valid_line game =
 	let rec valid_line p1 = 
 		let out_lines = List.map (fun x -> (p1,x)) (adjacent_points p1) in
 		if List.exists (is_valid  game) out_lines then List.find (is_valid game) out_lines
-		else valid_line (p1+1) 
+		else valid_line (p1+2) 
 	in valid_line 0 
 
 let place_structs (((map,s,deck,dis,robber),p,t,(c,r)) as game :state) (p1,p2) =
@@ -39,12 +42,13 @@ let place_structs (((map,s,deck,dis,robber),p,t,(c,r)) as game :state) (p1,p2) =
 	let roads' = (c,(p1,p2))::roads in
 	((map,(is',roads'),deck,dis,robber),p,t,(c,r))
 
-let place_structs_and_fetch (((map,s,deck,dis,robber),p,t,(c,r)) as game :state) (p1,p2) =
+let place_structs_and_generate (((map,s,deck,dis,robber),p,t,(c,r)) as game :state) (p1,p2) =
 	let (is,roads) = structs game in
 	let is' = List.mapi (fun i x -> if i = p1 then Some(c,Town) else x) is in
 	let roads' = (c,(p1,p2))::roads in
-	let p' = ResourceManager.fetch_resources c (p1,Town) p (fst map) in
-	((map,(is',roads'),deck,dis,robber),p',t,(c,r))	
+	let p' = ResourceManager.generate_resources c (p1,Town) p (fst map) in
+	((map,(is',roads'),deck,dis,robber),p',t,(c,r))
+
 
 
 let handle_move game line  = 
@@ -53,10 +57,10 @@ let handle_move game line  =
 			(if is_valid game line then None, place_structs (game) (line)
 			else let l = valid_line game in None, place_structs (game) (l))
 		else
-			(if is_valid game line then None, place_structs_and_fetch (game) (line)
-			else let l = valid_line game in None, place_structs_and_fetch (game) (l))	
+			(if is_valid game line then None, place_structs_and_generate (game) (line)
+			else let l = valid_line game in None, place_structs_and_generate (game) (l))	
 	in 
 	if turn (game) < 4 then handle_place (fwd game) line false
 	else if turn(game) = 4 then handle_place (game) line true
-	else if turn(game) = 8 then None, game
+	else if turn(game) = 8 then None, start_main_phase game
 	else handle_place (bwd game) line true
