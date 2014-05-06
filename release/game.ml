@@ -22,11 +22,11 @@ let handle_move ((_,_,_,(c,r)) as g: game) m =
       | DiscardMove(resources)	-> print_update (None, g)
       | TradeResponse(accept)  	-> print_update (None, g)
       | Action(action) 			-> match action with 
-      								  RollDice 					   -> print_update (ActionController.roll_dice g)
+      							| RollDice 			       -> print_update (ActionController.roll_dice g)
             						| MaritimeTrade(maritimetrade) -> print_update (None, g)
-            						| DomesticTrade(trade)		   -> print_update (None, g)
-            						| BuyBuild(build)			   -> print_update (None, g)
-            						| PlayCard(playcard)		   -> print_update (None, g)
-            						| EndTurn					   -> print_update (ActionController.end_turn g)
+            						| DomesticTrade(trade)		 -> print_update (None, g)
+            						| BuyBuild(build)			 -> print_update (ActionController.buy_build (g) build)
+            						| PlayCard(playcard)		 -> print_update (None, g)
+            						| EndTurn			       -> print_update (ActionController.end_turn g)
 
 let presentation s = s

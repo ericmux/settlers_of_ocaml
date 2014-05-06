@@ -16,6 +16,8 @@ let settlement_to_resource terrain (c,s) =
 
 let sum_resources (b1,w1,o1,l1,g1) (b2,w2,o2,l2,g2) = (b1 + b2, w1 + w2, o1 + o2, l1 + l2, g1 + g2)
 
+let sub_resources (b1,w1,o1,l1,g1) (b2,w2,o2,l2,g2) = (b1 - b2, w1 - w2, o1 - o2, l1 - l2, g1 - g2)
+
 
 (* get list of settlements on the corners of a hex. That is, plist should be [piece_cornerns hex_index]. *)
 let get_settlements plist s = 
@@ -66,6 +68,23 @@ let generate_initial_resources color players hex_list p1 s =
 		let res_to_add = List.fold_left sum_resources inv adj_hexes in
 		(c,(res_to_add,cards),troph)
 	in List.map add_res players
+
+
+(* Checks affordability for a certain operation. *)
+let active_player_can_afford ((b,p,t,(c,r)) : state) cost = 
+	let active_player = List.hd (List.filter (fun (color,_,_) -> color = c) p)
+	in let (_,(active_inv,_),_) = active_player
+	in let result = sub_resources active_inv cost
+	in let rec can_afford (b1,w1,o1,l1,g1) = (b1 >= 0) && (w1 >= 0) && (o1 >= 0) && (l1 >= 0) && (g1 >= 0)
+	in can_afford result 
+
+(* Assumes affordability. Applies the cost to the player's resources *)
+let apply_cost_to_player ((b,p,t,(c,r)) : state) color cost =
+	let apply_cost (c,(inv,cards),troph) = if (color = c) then (c,((sub_resources inv cost),cards),troph) else (c,(inv,cards),troph)
+	in let p' = List.map apply_cost p
+	in (b,p',t,(c,r))
+
+
 
 
 
